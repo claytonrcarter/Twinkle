@@ -29,6 +29,8 @@ public class UpdateVersion
 	//TODO: These should be moved inside an hashmap to allow for custom validator inputs
 	private String		md5Sum;
 	private String		dsaSignature;
+
+        private String          os;
 	
 	public long getDownloadSize()
 	{
@@ -139,7 +141,19 @@ public class UpdateVersion
 	{
 		this.description = description;
 	}	
-	
+
+
+        public String getOS() {
+          return os;
+        }
+
+        public void setOS(String os) {
+          this.os = os;
+        }
+
+
+
+
 	@Override
 	public String toString()
 	{
@@ -156,6 +170,7 @@ public class UpdateVersion
 		s += "Short Version: "+getShortVersion()+"\n";
 		s += "MD5 Checksum: "+getMd5Sum()+"\n";
 		s += "DSA Signature: "+getDsaSignature()+"\n";
+		s += "OS: "+getOS()+"\n";
 		
 		return s;
 	}

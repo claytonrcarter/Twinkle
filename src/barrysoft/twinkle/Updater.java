@@ -266,14 +266,36 @@ public class Updater
 		if (versions.isEmpty())
 			return null;
 		
-		UpdateVersion newer = versions.get(0);
-		
-		for (int i=1; i < versions.size(); i++)
+                String currentOS = System.getProperty("os.name").toLowerCase();
+		UpdateVersion newer = null;
+
+                // find the first version for this OS
+                for ( int i = 0; i < versions.size() && newer == null; i++ )
+                  // if currentOS contains value of getOS
+                  if ( currentOS.indexOf( versions.get(i).getOS() ) >= 0 )
+                    newer = versions.get(i);
+
+                // looked through all of list and found nothing suitable for
+                // this OS, try again looking for a version for all OSes
+                if ( newer == null ) {
+                  currentOS = "all";
+                  for ( int i = 0; i < versions.size() && newer == null; i++ )
+                    if ( currentOS.indexOf( versions.get(i).getOS() ) >= 0 )
+                      newer = versions.get(i);
+                }
+
+
+                // Throw UpdateException?  No version for OS or all?
+                // if ( newer == null )
+
+                
+		for ( int i=1; i < versions.size(); i++ )
 		{			
 			ComparatorResult compResult = getComparator().compareVersions(newer.getVersion(),
 					versions.get(i).getVersion());
 			
-			if (compResult == ComparatorResult.VERSION_NEW)
+			if ( compResult == ComparatorResult.VERSION_NEW &&
+                             currentOS.indexOf( versions.get(i).getOS() ) >= 0 )
 				newer = versions.get(i);
 		}
 		

@@ -49,6 +49,9 @@ public class SparkleModuleParser implements ModuleParser
 			
 			sparkleEnclosure.setShortVersionString(elem.getAttributeValue("shortVersionString", 
 					SparkleModuleParser.NS));
+
+			sparkleEnclosure.setOS(elem.getAttributeValue("os",
+                                               SparkleModuleParser.NS));
 			
 			sparkleEnclosures.add(sparkleEnclosure);
 		}

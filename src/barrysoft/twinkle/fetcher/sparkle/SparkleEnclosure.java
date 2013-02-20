@@ -10,6 +10,7 @@ public class SparkleEnclosure implements Serializable, Cloneable
 	private String shortVersionString;
 	private String dsaSignature;
 	private String md5Sum;
+        private String os;
 	
 	public String getDsaSignature()
 	{
@@ -51,6 +52,16 @@ public class SparkleEnclosure implements Serializable, Cloneable
 		this.shortVersionString = shortVersionString;
 	}
 	
+	public String getOS()
+	{
+		return os;
+	}
+
+	public void setOS(String os)
+	{
+		this.os = os;
+	}
+
 	@Override
 	public SparkleEnclosure clone() throws CloneNotSupportedException
 	{

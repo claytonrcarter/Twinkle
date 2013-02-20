@@ -56,7 +56,7 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		{
 			SyndEntry entry = (SyndEntry)e;
 
-			operations.add(convertSparkleEntry(entry));
+			operations.addAll(convertSparkleEntry(entry));
 		}
 		
 		return operations;
@@ -80,32 +80,62 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		return feed;
 	}
 	
-	protected UpdateVersion convertSparkleEntry(SyndEntry entry)
+	protected List<UpdateVersion> convertSparkleEntry(SyndEntry entry)
 		throws UpdateException
 	{
-		UpdateVersion op = new UpdateVersion();
-		
+
+                List<UpdateVersion> uvs = new ArrayList<UpdateVersion>();
+
+                // convert the entry to a Sparkle entry
 		SparkleEntry spk = (SparkleEntry)entry.getModule(SparkleModule.URI);
+
+
+                for ( int i = 0; i < entry.getEnclosures().size(); i++ ) {
+
+                  UpdateVersion op = new UpdateVersion();
+
+                  op.setName(entry.getTitle());
+                  op.setDate(entry.getPublishedDate());
+
+                  if ( spk != null )
+                    op.setMinimumSystemVersion(spk.getMinimumSystemVersion());
+
+                  if (entry.getDescription() != null)
+                    op.setDescription(entry.getDescription().getValue());
+
+                  try {
+                    //TODO this should be OK if they don't enter a
+                    // release notes URL ... but it's not
+                          op.setReleaseNotesLink(new URL(spk.getReleaseNotesLink()));
+                  } catch (MalformedURLException e) {
+                          throw new UpdateException("Can't parse release note URL", e);
+                  } catch ( NullPointerException e ) {}
+
+                  convertSparkleEnclosures( entry, op, i );
+
+                  uvs.add(op);
+
+                }
 		
-		op.setName(entry.getTitle());
-		op.setDate(entry.getPublishedDate());
-		op.setMinimumSystemVersion(spk.getMinimumSystemVersion());
-		
-		if (entry.getDescription() != null)
-			op.setDescription(entry.getDescription().getValue());
-		
-		try {
-			op.setReleaseNotesLink(new URL(spk.getReleaseNotesLink()));
-		} catch (MalformedURLException e) {
-			throw new UpdateException("Can't parse release note URL", e);
-		}
-		
-		convertSparkleEnclosures(entry, op);
-		
-		return op;
+		return uvs;
 	}
-	
+
+        /**
+         * Only converts the first enclosure.
+         * @deprecated
+         * @param entry
+         * @param targetOperation
+         * @throws UpdateException
+         */
 	protected void convertSparkleEnclosures(SyndEntry entry, UpdateVersion targetOperation)
+		throws UpdateException
+	{
+          convertSparkleEnclosures(entry, targetOperation, 0);
+        }
+
+	protected void convertSparkleEnclosures( SyndEntry entry,
+                                                UpdateVersion targetOperation,
+                                                int enclosureIndex )
 		throws UpdateException
 	{
 		SparkleEntry spk = (SparkleEntry)entry.getModule(SparkleModule.URI);
@@ -118,8 +148,8 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 			return;
 		}
 		
-		SyndEnclosure enclosure = (SyndEnclosure)entry.getEnclosures().get(0);
-		SparkleEnclosure senclosure = spk.getEnclosures().get(0);
+		SyndEnclosure enclosure = (SyndEnclosure)entry.getEnclosures().get(enclosureIndex);
+		SparkleEnclosure senclosure = spk.getEnclosures().get(enclosureIndex);
 		
 		try {
 			targetOperation.setDownloadUrl(new URL(enclosure.getUrl()));
@@ -132,5 +162,7 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		targetOperation.setMd5Sum(senclosure.getMd5Sum());
 		targetOperation.setVersion(senclosure.getVersion());
 		targetOperation.setShortVersion(senclosure.getShortVersionString());
+		targetOperation.setOS(senclosure.getOS());
+
 	}
 }
