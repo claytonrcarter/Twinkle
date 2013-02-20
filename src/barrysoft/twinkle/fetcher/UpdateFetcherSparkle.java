@@ -14,6 +14,7 @@ import barrysoft.twinkle.fetcher.sparkle.SparkleEnclosure;
 import barrysoft.twinkle.fetcher.sparkle.SparkleEntry;
 import barrysoft.twinkle.fetcher.sparkle.SparkleModule;
 import barrysoft.twinkle.fetcher.sparkle.SparkleModuleImpl;
+import com.sun.syndication.feed.module.Module;
 
 import com.sun.syndication.feed.synd.SyndEnclosure;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -21,6 +22,8 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
+import java.net.URLConnection;
+import java.util.ArrayList;
 
 /**
  * This {@link UpdateFetcher} implementation fetches and parses
