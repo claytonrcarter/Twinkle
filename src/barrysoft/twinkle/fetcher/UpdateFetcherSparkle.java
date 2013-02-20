@@ -21,6 +21,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
+import java.net.URLConnection;
 
 /**
  * This {@link UpdateFetcher} implementation fetches and parses
@@ -68,7 +69,17 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		SyndFeed feed;
 		
 		try {
-			feed = sfi.build(new XmlReader(feedUrl));
+                  
+                  String userAgent = "Java/" +
+                                     System.getProperty("java.version") +
+                                     " ( " + System.getProperty("os.name") +
+                                     " " + System.getProperty("os.version") +
+                                     " )";
+
+                  URLConnection uConn = feedUrl.openConnection();
+                  uConn.setRequestProperty("User-Agent", userAgent );
+
+			feed = sfi.build(new XmlReader(uConn));
 		} catch (IllegalArgumentException e) {
 			throw new UpdateException("Unknown type of update feed", e);
 		} catch (FeedException e) {
