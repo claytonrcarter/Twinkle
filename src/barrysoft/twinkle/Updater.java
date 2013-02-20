@@ -106,7 +106,7 @@ public class Updater
           if( !desktop.isSupported( java.awt.Desktop.Action.BROWSE ) ) {
             throw new UpdateException( "Cannot launch browser to download. " +
                                        "Please visit website to download new " +
-                                       "new version." );
+                                       "version." );
           }
 
           try {
@@ -117,9 +117,11 @@ public class Updater
           catch ( Exception e ) {
             throw new UpdateException( "Cannot launch browser to download. " +
                                        "Please visit website to download new " +
-                                       "new version." );
+                                       "version." );
           }
-          
+
+          fireUpdateCompleted();
+          setCurrentVersion(null);
         }
 
         
