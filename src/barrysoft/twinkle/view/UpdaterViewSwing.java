@@ -9,12 +9,13 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import barrysoft.gui.GUIEventsDispatcher;
-import barrysoft.options.Options;
 import barrysoft.twinkle.UpdateException;
 import barrysoft.twinkle.UpdateRequest;
 import barrysoft.twinkle.UpdateVersion;
 import barrysoft.twinkle.view.gui.UpdateAvailableDialog;
 import barrysoft.twinkle.view.gui.UpdateProgressDialog;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 /**
  * Swing implementation of an {@link UpdateView}.
@@ -33,7 +34,7 @@ public class UpdaterViewSwing implements UpdaterView
 	private final UpdateAvailableDialog 	updateAvailableDialog;
 	private final UpdateProgressDialog 		updateProgressDialog;
 	
-	private final Options					updateOptions;
+	private final Preferences				updatePrefs;
 
 	private final Action installAction = new AbstractAction() 
 	{
@@ -45,7 +46,7 @@ public class UpdaterViewSwing implements UpdaterView
 		
 		public void actionPerformed(ActionEvent e)
 		{
-			updateOptions.setOption("updater.auto", 
+			updatePrefs.putBoolean("updater.auto",
 					updateAvailableDialog.isAlwaysDownload());
 			
 			fireUpdateRequested(updateAvailableDialog.getUpdateVersion(),
@@ -63,7 +64,7 @@ public class UpdaterViewSwing implements UpdaterView
 
 		public void actionPerformed(ActionEvent e)
 		{
-			updateOptions.setOption("updater.auto",
+			updatePrefs.putBoolean("updater.auto",
 					updateAvailableDialog.isAlwaysDownload());
 
 			fireDownloadRequested( updateAvailableDialog.getUpdateVersion(),
@@ -81,8 +82,9 @@ public class UpdaterViewSwing implements UpdaterView
 
 		public void actionPerformed(ActionEvent e)
 		{
-			updateOptions.setOption("updater.skipversion",
-					updateAvailableDialog.getUpdateVersion().getVersion());
+			updatePrefs.put("updater.skipversion",
+					updateAvailableDialog.getUpdateVersion()
+                                                             .getVersion() );
 		}
 	};
 	
@@ -100,15 +102,11 @@ public class UpdaterViewSwing implements UpdaterView
 		}
 	};
 	
-	public UpdaterViewSwing(Options updateOptions)
+	public UpdaterViewSwing(Preferences updatePreferences)
 	{
-		this.updateOptions = updateOptions;
+		this.updatePrefs = updatePreferences;
                 
-                Boolean downloadOnly = this.updateOptions
-                                           .getOptionValue( "updater.downloadonly",
-                                                            Boolean.class,
-                                                            false );
-                if ( downloadOnly.booleanValue() )
+                if ( updatePrefs.getBoolean( "updater.downloadonly", false ) )
                   this.updateAvailableDialog =
                           new UpdateAvailableDialog( downloadAction,
                                                      skipVersionAction );
@@ -116,7 +114,7 @@ public class UpdaterViewSwing implements UpdaterView
 		this.updateAvailableDialog = new UpdateAvailableDialog(installAction, skipVersionAction);
 		this.updateProgressDialog = new UpdateProgressDialog(cancelUpdateAction);
 		
-		if (!updateOptions.getOptionValue("updater.auto", Boolean.class, false))
+		if (!updatePrefs.getBoolean("updater.auto", false))
 			dispatcher.addTarget(updateAvailableDialog);
 		
 		dispatcher.addTarget(updateProgressDialog);
@@ -139,11 +137,11 @@ public class UpdaterViewSwing implements UpdaterView
 
 	public void newVersionFound(UpdateVersion version, UpdateRequest source)
 	{
-		String skipVersion = updateOptions.getOptionValue("updater.skipversion", String.class, "");
+		String skipVersion = updatePrefs.get("updater.skipversion", "");
 		
 		if (!skipVersion.isEmpty() && skipVersion.equals(version.getVersion())) 
 			noUpdateRequired();
-		else if (!updateOptions.getOptionValue("updater.auto", Boolean.class, false))
+		else if (!updatePrefs.getBoolean("updater.auto", false))
 			dispatcher.dispatch(UpdaterEventType.NEW_VERSION_FOUND, version, source);
 		else
 			fireUpdateRequested(version, source);
@@ -224,6 +222,11 @@ public class UpdaterViewSwing implements UpdaterView
 	public void updateCompleted()
 	{
 		dispatcher.dispatch(UpdaterEventType.UPDATE_COMPLETED);
+                try {
+                  updatePrefs.flush();
+                } catch ( BackingStoreException e ) {
+                  // TODO handle this exception?
+                }
 	}
 
 	public void checkingStarted(UpdateRequest source)
