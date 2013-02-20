@@ -121,6 +121,28 @@ public class UpdaterController implements UpdaterObserver, UpdaterViewObserver
 		}).start();
 	}
 	
+	public void downloadRequested( final UpdateVersion version,
+                                        final UpdateRequest source)
+	{
+		new Thread(new Runnable() {
+			public void run()
+			{
+				try
+				{
+					updater.launchDownload(version, source);
+				}
+				catch (UpdateException e)
+				{
+					view.updateError(e);
+
+					if (Logger.getLogger(getClass()).isDebugEnabled())
+						e.printStackTrace();
+				}
+			}
+
+		}).start();
+	}
+
 	public void updateCanceled()
 	{
 		view.updateCanceled();

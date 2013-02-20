@@ -90,8 +90,41 @@ public class Updater
 			fireChecking(request, true);
 		}
 	}
-	
-	public void update(UpdateVersion version, UpdateRequest source)
+
+
+	public void launchDownload(UpdateVersion version, UpdateRequest source)
+		throws UpdateException
+	{
+
+          if( !java.awt.Desktop.isDesktopSupported() ) {
+            throw new UpdateException( "Cannot launch browser to download. " +
+                                       "Please visit website to download new " +
+                                       "new version." );
+          }
+
+          java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+          if( !desktop.isSupported( java.awt.Desktop.Action.BROWSE ) ) {
+            throw new UpdateException( "Cannot launch browser to download. " +
+                                       "Please visit website to download new " +
+                                       "new version." );
+          }
+
+          try {
+
+            desktop.browse( version.getDownloadUrl().toURI() );
+
+          }
+          catch ( Exception e ) {
+            throw new UpdateException( "Cannot launch browser to download. " +
+                                       "Please visit website to download new " +
+                                       "new version." );
+          }
+          
+        }
+
+        
+	public void update( UpdateVersion version,
+                            UpdateRequest source )
 		throws UpdateException
 	{
 		setCurrentDownloadFuture(updatesExecutor.
