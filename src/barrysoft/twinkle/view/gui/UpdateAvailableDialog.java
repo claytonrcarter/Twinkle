@@ -43,6 +43,10 @@ public class UpdateAvailableDialog extends JDialog
 	public UpdateAvailableDialog(Action install, Action skipVersion)
 	{
 		//TODO: Localization
+
+                boolean formatForDownload =
+                        ((String) install.getValue(Action.NAME))
+                                         .equalsIgnoreCase("download");
 		
 		setMinimumSize(MIN_SIZE);
 		setTitle("Software Update");
@@ -71,11 +75,18 @@ public class UpdateAvailableDialog extends JDialog
 		
 		JPanel bottomPanel = new JPanel(new MigLayout("fill, insets 0"));
 	
+                if ( formatForDownload ) {
+                  bottomPanel.add( new JLabel( "Click the Download button to " + 
+                                               "launch the download in your " +
+                                               "browser." ), 
+                                   "gap 0 0 10 10, spanx 3, wrap" );
+                } else {
 		automaticallyDownload.setText("Automatically download and install updates next time");
 		
 		automaticallyDownload.setSelected(false);
 				
 		bottomPanel.add(automaticallyDownload,"gap 0 0 10 10, spanx 2, wrap");
+                }
 		
 		JButton skipVersionButton = new JButton(skipVersion);
 		skipVersionButton.addActionListener(new ActionListener() 

@@ -25,6 +25,15 @@ public interface UpdaterViewObserver
 	 * 					to check for available updates
 	 */
 	void updateRequested(UpdateVersion version, UpdateRequest source);
+
+	/**
+	 * Called when the user has chosen to only download an update
+	 *
+	 * @param version	The version to download
+	 * @param source	The source {@link UpdateRequest} that was used
+	 * 					to check for available updates
+	 */
+	void downloadRequested(UpdateVersion version, UpdateRequest source);
 	
 	/**
 	 * Called when the user agreed to restart the application	

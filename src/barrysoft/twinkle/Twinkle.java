@@ -20,7 +20,12 @@ public class Twinkle
 	{
 		return instance;
 	}
-	
+
+        public void runUpdate(Class<?> main, String appcastUrl, String appinfoUrl)
+	{
+          runUpdate(main, appcastUrl, appinfoUrl, false);
+        }
+
 	/**
 	 * Helper method to quickly start the update process.
 	 * 
@@ -35,7 +40,13 @@ public class Twinkle
 	 */
 	
 	//TODO: It's just a quick hack for now
-	public void runUpdate(Class<?> main, String appcastUrl, String appinfoUrl)
+        //TODO I don't like the addition of the boolean download only
+        // would be much cleaner if we just set the updater properties/options
+        // outside of this and let the system pick them up??
+	public void runUpdate( Class<?> main,
+                               String appcastUrl,
+                               String appinfoUrl,
+                               boolean downloadOnly )
 	{
 		//Initialize the updater
 		Updater.getInstance();
@@ -65,8 +76,11 @@ public class Twinkle
 			e.printStackTrace();
 			return;
 		}
-		
-		UpdaterView view = new UpdaterViewSwing(new Options());
+
+                Options opt = new Options();
+                opt.setOption( "updater.downloadonly", downloadOnly );
+
+		UpdaterView view = new UpdaterViewSwing(opt);
 		final UpdaterController uc = new UpdaterController(Updater.getInstance(), view);
 
 		new Thread(new Runnable()

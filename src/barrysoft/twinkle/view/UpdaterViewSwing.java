@@ -53,6 +53,24 @@ public class UpdaterViewSwing implements UpdaterView
 		}
 	};
 	
+	private final Action downloadAction = new AbstractAction()
+	{
+		private static final long serialVersionUID = -7773489410353949311L;
+
+		{
+			putValue(Action.NAME, "Download");
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			updateOptions.setOption("updater.auto",
+					updateAvailableDialog.isAlwaysDownload());
+
+			fireDownloadRequested( updateAvailableDialog.getUpdateVersion(),
+				  	       updateAvailableDialog.getUpdateSource());
+		}
+	};
+
 	private final Action skipVersionAction = new AbstractAction() 
 	{
 		private static final long serialVersionUID = 0L;
@@ -85,6 +103,16 @@ public class UpdaterViewSwing implements UpdaterView
 	public UpdaterViewSwing(Options updateOptions)
 	{
 		this.updateOptions = updateOptions;
+                
+                Boolean downloadOnly = this.updateOptions
+                                           .getOptionValue( "updater.downloadonly",
+                                                            Boolean.class,
+                                                            false );
+                if ( downloadOnly.booleanValue() )
+                  this.updateAvailableDialog =
+                          new UpdateAvailableDialog( downloadAction,
+                                                     skipVersionAction );
+                else
 		this.updateAvailableDialog = new UpdateAvailableDialog(installAction, skipVersionAction);
 		this.updateProgressDialog = new UpdateProgressDialog(cancelUpdateAction);
 		
@@ -147,6 +175,12 @@ public class UpdaterViewSwing implements UpdaterView
 			observer.updateRequested(version, source);
 	}
 	
+	protected void fireDownloadRequested(UpdateVersion version, UpdateRequest source)
+	{
+		for	(UpdaterViewObserver observer : observers)
+			observer.downloadRequested(version, source);
+	}
+
 	protected void fireCancelUpdate()
 	{
 		for	(UpdaterViewObserver observer : observers)
