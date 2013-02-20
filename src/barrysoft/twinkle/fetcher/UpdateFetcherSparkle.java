@@ -87,7 +87,10 @@ public class UpdateFetcherSparkle implements UpdateFetcher
 		} catch (FeedException e) {
 			throw new UpdateException("Error while parsing update feed", e);
 		} catch (IOException e) {
-			throw new UpdateException("Can't fetch update feed", e);
+                  // this is thrown if there's no network connection
+                  UpdateException ue = new UpdateException("Can't fetch update feed", e);
+                  ue.setFatal(false);
+			 throw ue;
 		}
 		
 		return feed;

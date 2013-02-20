@@ -183,8 +183,11 @@ public class UpdaterViewSwing implements UpdaterView
 	{
 		dispatcher.dispatch(UpdaterEventType.ERROR_OCCURRED, e);
 		
-		JOptionPane.showMessageDialog(null, e.getMessage(), 
-				"Error while updating", JOptionPane.ERROR_MESSAGE);
+                if ( e.isFatal() )
+                  JOptionPane.showMessageDialog(null, e.getMessage(),
+                                  "Error while updating", JOptionPane.ERROR_MESSAGE);
+                else
+                  System.err.println("Error while updating: " + e.getMessage() );
 	}
 	
 	public void updateCompleted()
